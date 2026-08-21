@@ -1,0 +1,10 @@
+{{ matches|length }} new match(es) detected
+{% for match in matches %}
+---
+{{ match.companyName }}{% if match.matchedTerm != match.companyName %} (via alias "{{ match.matchedTerm }}"){% endif %}
+
+{{ match.breachItem.title }}{% if match.breachItem.publishedAt %} — {{ match.breachItem.publishedAt|date('d/m/Y') }}{% endif %}
+{{ match.breachItem.link }}
+{% if match.breachItem.categories|length > 0 %}Data affected: {{ match.breachItem.categories|join(', ') }}
+{% endif %}Match found in "{{ match.matchedField }}": {{ match.snippet }}
+{% endfor %}

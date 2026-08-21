@@ -1,0 +1,11 @@
+channels:
+    email:
+        type: email
+        from: 'alerte@exemple.test'
+        recipient: 'alice@exemple.test'
+
+    free_mobile:
+        type: free_mobile
+        # scheme "null" (pas "freemobile") pour ne jamais toucher le réseau en test : voir
+        # NullTransportFactory, taggée texter.transport_factory.
+        recipient: 'null://null?phone=0600000000'

@@ -1,0 +1,11 @@
+# RSS/Atom feeds to monitor.
+#
+# name : arbitrary label used in logs, JSON output, and the --feed option
+# url  : feed URL, RSS or Atom (format is auto-detected)
+feeds:
+    - name: 'FrenchBreaches'
+      url: 'https://frenchbreaches.com/feed.xml'
+
+    # Add as many feeds as needed:
+    # - name: 'AnotherFeed'
+    #   url: 'https://example.com/feed.xml'

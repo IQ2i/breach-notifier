@@ -1,0 +1,22 @@
+# Notification channels: one channel id = one single recipient.
+#
+# type      : 'email' or 'free_mobile'
+# from      : sender address (email only). Can be a '%env(VAR)%' placeholder.
+# recipient : single recipient, format depends on the type:
+#              - email       : an email address
+#              - free_mobile : a full Free Mobile DSN ('%env(VAR)%'), because the login, API key
+#                              and phone number are tied to the account (the Free Mobile API only
+#                              delivers to its own number)
+#
+# A channel whose required "dsn"/"from" or recipient depends on a missing or empty environment
+# variable is silently disabled (visible with -v).
+#
+channels:
+    email:
+        type: email
+        from: '%env(BREACH_MAIL_FROM)%'
+        recipient: '%env(BREACH_MAIL_TO)%'
+
+    free_mobile:
+        type: free_mobile
+        recipient: '%env(FREEMOBILE_DSN)%'

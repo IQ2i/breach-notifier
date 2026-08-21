@@ -1,0 +1,16 @@
+# List of companies to watch for in the RSS/Atom feeds.
+#
+# name      : company name (required, at least 3 characters)
+# aliases   : other names/legal names the company may appear under (optional)
+# match_in  : feed fields to search — 'title' and/or 'content' (default: both)
+#             useful for very generic names (e.g. "Orange") to avoid false positives
+#             by only searching the alert title.
+companies:
+    - name: 'SFR'
+      aliases: ['Société Française du Radiotéléphone']
+
+    - name: 'Orange'
+      match_in: ['title']
+
+    - name: 'Example Corp'
+      aliases: ['ExampleCorp', 'Example Corporation']

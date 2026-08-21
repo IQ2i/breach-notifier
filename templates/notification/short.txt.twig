@@ -1,0 +1,4 @@
+{{ matches|length }} new data breach(es) detected
+{% for match in matches %}{{ match.companyName }} — {{ match.breachItem.title }}
+{% endfor %}
+{{ matches[0].breachItem.link }}

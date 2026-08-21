@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Exemple de flux Atom</title>
+    <id>urn:uuid:exemple-atom-feed</id>
+    <updated>2026-08-19T10:00:00Z</updated>
+    <entry>
+        <title>Acme Corp</title>
+        <id>urn:uuid:acme-corp-breach-1</id>
+        <link href="https://example.com/alertes/acme-corp"/>
+        <updated>2026-08-19T10:00:00Z</updated>
+        <content type="text">Une fuite de données touchant Acme Corp a été révélée.</content>
+        <category term="email"/>
+        <category term="mot de passe"/>
+    </entry>
+</feed>

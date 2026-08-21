@@ -1,0 +1,17 @@
+.git
+.github
+.idea
+.vscode
+.claude
+.phpunit.cache
+var
+vendor
+tests
+docs
+*.md
+.env.local
+.env.local.php
+.env.*.local
+compose*.yaml
+Dockerfile
+.dockerignore

@@ -1,0 +1,16 @@
+# Production image: self-contained, meant to be run one-shot by the host's cron, e.g.
+#
+#   0 * * * * cd /srv/breach-notifier && docker compose -f compose.prod.yaml run --rm breach-notifier >> var/log/cron.log 2>&1
+#
+services:
+    breach-notifier:
+        build:
+            context: .
+            target: prod
+        env_file:
+            - .env.local
+        volumes:
+            - ./var:/srv/app/var
+            - ./feeds.yaml:/srv/app/feeds.yaml:ro
+            - ./watchlist.yaml:/srv/app/watchlist.yaml:ro
+            - ./notifications.yaml:/srv/app/notifications.yaml:ro

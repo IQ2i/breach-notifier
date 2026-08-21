@@ -1,0 +1,6 @@
+companies:
+    - name: 'SFR'
+      aliases: ['Société Française du Radiotéléphone']
+
+    - name: 'Orange'
+      match_in: ['title']

@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New data breaches detected</title>
+</head>
+<body style="font-family: sans-serif; color: #1a1a1a;">
+    <h1 style="font-size: 18px;">{{ matches|length }} new match(es) detected</h1>
+
+    {% for match in matches %}
+        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #ddd;">
+            <p style="margin: 0 0 4px;">
+                <strong>{{ match.companyName }}</strong>
+                {% if match.matchedTerm != match.companyName %}
+                    <span style="color: #666;">(via alias "{{ match.matchedTerm }}")</span>
+                {% endif %}
+            </p>
+            <p style="margin: 0 0 4px;">
+                <a href="{{ match.breachItem.link }}">{{ match.breachItem.title }}</a>
+                {% if match.breachItem.publishedAt %}
+                    — {{ match.breachItem.publishedAt|date('d/m/Y') }}
+                {% endif %}
+            </p>
+            {% if match.breachItem.categories|length > 0 %}
+                <p style="margin: 0 0 4px; color: #666; font-size: 13px;">
+                    Data affected: {{ match.breachItem.categories|join(', ') }}
+                </p>
+            {% endif %}
+            <p style="margin: 0; font-size: 13px; color: #444;">
+                Match found in "{{ match.matchedField }}": {{ match.snippet }}
+            </p>
+        </div>
+    {% endfor %}
+</body>
+</html>

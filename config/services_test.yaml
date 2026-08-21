@@ -1,0 +1,10 @@
+# Service overrides for the test environment: the watchlist and notification channels
+# must not depend on the contents of config/ (which evolves with production).
+services:
+    App\Watchlist\WatchlistProvider:
+        arguments:
+            $filePath: '%kernel.project_dir%/tests/Fixtures/watchlist.yaml'
+
+    App\Notification\ChannelRegistry:
+        arguments:
+            $filePath: '%kernel.project_dir%/tests/Fixtures/notifications.yaml'

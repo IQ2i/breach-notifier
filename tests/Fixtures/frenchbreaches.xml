@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>FrenchBreaches - Dernières fuites de données</title>
+    <item>
+        <title>FrenchInnov</title>
+        <link>https://frenchbreaches.com/alertes/frenchinnov-mt1qw0kfdhmqb8emex</link>
+        <guid isPermaLink="true">https://frenchbreaches.com/alertes/frenchinnov-mt1qw0kfdhmqb8emex</guid>
+        <pubDate>Thu, 20 Aug 2026 20:06:00 +0200</pubDate>
+        <description># FrenchInnov : des données CRM de près de 1 600 établissements revendiquées après un piratage
+
+Une publication diffusée le **20 août 2026** sur un forum fréquenté par des cybercriminels revendique un accès aux données CRM de **FrenchInnov**, éditeur français de solutions de gestion destinées notamment aux restaurants.
+
+L’auteur de la publication présente son extraction sous le titre **« CRM DATA (1.6K) »**, ce qui suggère un périmètre d’environ **1 600 fiches ou enregist...</description>
+                <category>adresse, adresse email, nom du client ou de l’établissement, note privée, téléphone</category>
+            </item>
+    <item>
+        <title>John Paul</title>
+        <link>https://frenchbreaches.com/alertes/john-paul-mt1g0ll5v5vh0u0syq8</link>
+        <guid isPermaLink="true">https://frenchbreaches.com/alertes/john-paul-mt1g0ll5v5vh0u0syq8</guid>
+        <pubDate>Thu, 20 Aug 2026 13:33:00 +0200</pubDate>
+        <description># Fuite de données : 4 179 clients Visa Infinite et Platinum concernés après le piratage d’un prestataire de conciergerie
+
+Un incident de sécurité touchant la société John Paul, prestataire de services de conciergerie associés notamment aux cartes Visa Infinite, Platinum et Platinum Business, a entraîné l’exposition de données personnelles de clients de plusieurs établissements bancaires.
+
+L’incident a été détecté le **5 août 2026** après la compromission d’un **compte...</description>
+                <category>adresse postale, date de naissance, nom, prénom</category>
+            </item>
+    <item>
+        <title>SFR</title>
+        <link>https://frenchbreaches.com/alertes/sfr-mrp254s7k2z2s62yzqf</link>
+        <guid isPermaLink="true">https://frenchbreaches.com/alertes/sfr-mrp254s7k2z2s62yzqf</guid>
+        <pubDate>Thu, 20 Aug 2026 12:30:00 +0200</pubDate>
+        <description># Fuite de données revendiquée visant SFR : plus de 2,1 millions de lignes potentiellement concernées
+
+## Mise à jour le 20 août à 12h00
+&gt; SFR informe d’un incident de sécurité ayant entraîné un accès non autorisé à certaines données personnelles de clients (identité, coordonnées et données liées à la ligne).
+&gt; Les mots de passe et informations bancaires ne sont pas concernés ; SFR indique avoir sécurisé l’accès et notifié la CNIL.
+---
+
+Une publication diffusée sur u...</description>
+                <category>adresse postale complète, adresses IPv4, identifiant client, nom, numéro de téléphone, préfixes IPv6, prénom, type d'offre souscrite</category>
+            </item>
+  </channel>
+</rss>
