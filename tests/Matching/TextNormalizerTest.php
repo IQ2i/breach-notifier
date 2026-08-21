@@ -31,7 +31,7 @@ final class TextNormalizerTest extends TestCase
         yield 'lowercase and accents' => ['Société Générale', 'societe generale'];
         yield 'typographic apostrophe' => ['l’entreprise', 'l entreprise'];
         yield 'straight apostrophe' => ["l'entreprise", 'l entreprise'];
-        yield 'multiple punctuation collapses to one space' => ["SFR : plus de 2,1 millions...", 'sfr plus de 2 1 millions'];
+        yield 'multiple punctuation collapses to one space' => ['SFR : plus de 2,1 millions...', 'sfr plus de 2 1 millions'];
         yield 'newlines and tabs' => ["Ligne 1\nLigne 2\tLigne 3", 'ligne 1 ligne 2 ligne 3'];
         yield 'leading and trailing punctuation trimmed' => ['  « SFR » ', 'sfr'];
         yield 'empty string' => ['', ''];

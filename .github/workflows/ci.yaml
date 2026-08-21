@@ -57,5 +57,11 @@ jobs:
       - name: Lint config, twig and container
         run: composer lint
 
+      - name: Check coding standards
+        run: composer cs-check
+
+      - name: Run static analysis
+        run: composer phpstan
+
       - name: Run test suite
         run: composer test

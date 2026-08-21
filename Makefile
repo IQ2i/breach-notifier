@@ -9,7 +9,7 @@ PHP = $(PHP_CONT) php
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        = help build install sf check migrate test lint build-prod check-prod
+.PHONY        = help build install sf check migrate test lint cs-check cs-fix phpstan qa build-prod check-prod
 
 ## —— Help 🐳 🎵 ———————————————————————————————————————————————————————————————
 help: ## Outputs this help screen
@@ -39,6 +39,17 @@ lint: ## Lint config and templates
 	@$(PHP) bin/console lint:yaml config feeds.dist.yaml watchlist.dist.yaml notifications.dist.yaml
 	@$(PHP) bin/console lint:twig templates
 	@$(PHP) bin/console lint:container
+
+cs-check: ## Check coding standards
+	@$(PHP_CONT) vendor/bin/php-cs-fixer fix --dry-run --diff
+
+cs-fix: ## Fix coding standards
+	@$(PHP_CONT) vendor/bin/php-cs-fixer fix
+
+phpstan: ## Run static analysis
+	@$(PHP_CONT) vendor/bin/phpstan analyse --memory-limit=1G
+
+qa: lint cs-check phpstan test ## Run all quality checks (lint, cs, phpstan, tests)
 
 ## —— Docker (prod) 🐳 —————————————————————————————————————————————————————————
 build-prod: ## Build the production Docker image

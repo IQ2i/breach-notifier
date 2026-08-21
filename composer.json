@@ -75,6 +75,15 @@
             "@php bin/console lint:yaml config feeds.dist.yaml watchlist.dist.yaml notifications.dist.yaml",
             "@php bin/console lint:twig templates",
             "@php bin/console lint:container"
+        ],
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "phpstan": "phpstan analyse --memory-limit=1G",
+        "qa": [
+            "@lint",
+            "@cs-check",
+            "@phpstan",
+            "@test"
         ]
     },
     "conflict": {
@@ -88,6 +97,9 @@
         }
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^13.3"
     }
 }
