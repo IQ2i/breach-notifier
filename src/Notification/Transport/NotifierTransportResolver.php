@@ -10,20 +10,25 @@ use Symfony\Component\Notifier\Transport;
 use Symfony\Component\Notifier\Transport\TransportInterface;
 
 /**
- * Résout les DSN de notifications.yaml en transports Notifier, via l'agrégat de
- * factories de bridges enregistré par Symfony dès que framework.notifier est activé :
- * texter.transport_factory pour Free Mobile.
+ * Resolves notifications.yaml DSNs into Notifier transports, via the bridge factory
+ * aggregates registered by Symfony as soon as framework.notifier is enabled:
+ * texter.transport_factory for Free Mobile (SMS), chatter.transport_factory for
+ * Mattermost (chat).
  */
 final class NotifierTransportResolver implements TransportResolverInterface
 {
     public function __construct(
         #[Autowire(service: 'texter.transport_factory')]
         private readonly Transport $texterTransportFactory,
+        #[Autowire(service: 'chatter.transport_factory')]
+        private readonly Transport $chatterTransportFactory,
     ) {
     }
 
     public function resolve(string $dsn, ChannelType $type): TransportInterface
     {
-        return $this->texterTransportFactory->fromString($dsn);
+        $factory = ChannelType::Mattermost === $type ? $this->chatterTransportFactory : $this->texterTransportFactory;
+
+        return $factory->fromString($dsn);
     }
 }

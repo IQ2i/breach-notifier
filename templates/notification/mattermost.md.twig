@@ -1,0 +1,5 @@
+**{{ matches|length }} new data breach(es) detected**
+{% for match in matches %}
+- **{{ match.companyName }}** — [{{ match.breachItem.title }}]({{ match.breachItem.link }})
+  _{% if match.breachItem.publishedAt %}published on {{ match.breachItem.publishedAt|date('d/m/Y') }} · {% endif %}matched field: {{ match.matchedField }}_
+{% endfor %}

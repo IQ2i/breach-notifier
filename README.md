@@ -84,9 +84,13 @@ channels:
     free_mobile:
         type: free_mobile
         recipient: '%env(FREEMOBILE_DSN)%'
+
+    mattermost:
+        type: mattermost
+        recipient: '%env(MATTERMOST_DSN)%'
 ```
 
-- `type`: `email` or `free_mobile`.
+- `type`: `email`, `free_mobile` or `mattermost`.
 - `from`: sender address, required for `email` only.
 - `recipient`: single recipient, format depends on the type (see table below).
 - The `%env(VAR_NAME)%` syntax is recognized in `dsn`, `from` and `recipient`, and resolved from `.env.local`. A missing or empty variable silently disables the channel (visible with `-v`) instead of failing the command.
@@ -99,6 +103,7 @@ MAILER_DSN=smtp://user:pass@host:port
 BREACH_MAIL_FROM=alerts@example.com
 BREACH_MAIL_TO=security@example.com
 FREEMOBILE_DSN=freemobile://LOGIN:API_KEY@default?phone=0611223344
+MATTERMOST_DSN=mattermost://ACCESS_TOKEN@mattermost.example.com/PATH?channel=security
 ```
 
 No channel configured (missing file, empty `channels` section, or all env variables empty): the command runs normally without notifying anything.
@@ -109,6 +114,7 @@ No channel configured (missing file, empty `channels` section, or all env variab
 |---|---|---|
 | `email` | an email address | a single recipient per channel |
 | `free_mobile` | a **complete** Free Mobile DSN (`%env(...)%`) | the Free Mobile API only sends to the phone number tied to the account used — the recipient must have their own Free Mobile account with the "SMS notifications" option enabled |
+| `mattermost` | a **complete** Mattermost DSN (`%env(...)%`) | the target channel is carried by the DSN's `?channel=` query parameter — declare one channel per Mattermost room, each with its own `?channel=`; the access token must belong to a bot/user allowed to post there |
 
 ## Docker
 

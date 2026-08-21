@@ -21,6 +21,7 @@
         "symfony/free-mobile-notifier": "8.1.*",
         "symfony/http-client": "8.1.*",
         "symfony/mailer": "8.1.*",
+        "symfony/mattermost-notifier": "8.1.*",
         "symfony/notifier": "8.1.*",
         "symfony/runtime": "8.1.*",
         "symfony/string": "8.1.*",
