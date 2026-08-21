@@ -1,0 +1,61 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method App\\Entity\\BreachItem\:\:__construct\(\) has parameter \$categories with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/BreachItem.php
+
+		-
+			message: '#^Property App\\Entity\\BreachItem\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/BreachItem.php
+
+		-
+			message: '#^Property App\\Entity\\BreachItem\:\:\$matches is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Entity/BreachItem.php
+
+		-
+			message: '#^Property App\\Entity\\BreachMatch\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/BreachMatch.php
+
+		-
+			message: '#^Call to function assert\(\) with true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Feed/FeedReader.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 2
+			path: src/Feed/FeedReader.php
+
+		-
+			message: '#^Instanceof between Laminas\\Feed\\Reader\\Entry\\EntryInterface and Laminas\\Feed\\Reader\\Entry\\EntryInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Feed/FeedReader.php
+
+		-
+			message: '#^Method App\\Kernel\:\:configureRoutes\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: src/Kernel.php
+
+		-
+			message: '#^Method App\\Kernel\:\:getAllowedEnvs\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: src/Kernel.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''Symfony\\\\Component\\\\Dotenv\\\\Dotenv'' and ''bootEnv'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/bootstrap.php
