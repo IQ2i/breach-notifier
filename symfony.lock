@@ -134,6 +134,15 @@
             "config/packages/notifier.yaml"
         ]
     },
+    "symfony/pushover-notifier": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.3",
+            "ref": "eb2aefc42ea7e44a70c4d1c3aea86ad176171e7c"
+        }
+    },
     "symfony/twig-bundle": {
         "version": "8.1",
         "recipe": {

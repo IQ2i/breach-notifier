@@ -88,9 +88,13 @@ channels:
     mattermost:
         type: mattermost
         recipient: '%env(MATTERMOST_DSN)%'
+
+    pushover:
+        type: pushover
+        recipient: '%env(PUSHOVER_DSN)%'
 ```
 
-- `type`: `email`, `free_mobile` or `mattermost`.
+- `type`: `email`, `free_mobile`, `mattermost` or `pushover`.
 - `from`: sender address, required for `email` only.
 - `recipient`: single recipient, format depends on the type (see table below).
 - The `%env(VAR_NAME)%` syntax is recognized in `dsn`, `from` and `recipient`, and resolved from `.env.local`. A missing or empty variable silently disables the channel (visible with `-v`) instead of failing the command.
@@ -104,6 +108,7 @@ BREACH_MAIL_FROM=alerts@example.com
 BREACH_MAIL_TO=security@example.com
 FREEMOBILE_DSN=freemobile://LOGIN:API_KEY@default?phone=0611223344
 MATTERMOST_DSN=mattermost://ACCESS_TOKEN@mattermost.example.com/PATH?channel=security
+PUSHOVER_DSN=pushover://USER_KEY:APP_TOKEN@default
 ```
 
 No channel configured (missing file, empty `channels` section, or all env variables empty): the command runs normally without notifying anything.
@@ -115,6 +120,7 @@ No channel configured (missing file, empty `channels` section, or all env variab
 | `email` | an email address | a single recipient per channel |
 | `free_mobile` | a **complete** Free Mobile DSN (`%env(...)%`) | the Free Mobile API only sends to the phone number tied to the account used — the recipient must have their own Free Mobile account with the "SMS notifications" option enabled |
 | `mattermost` | a **complete** Mattermost DSN (`%env(...)%`) | the target channel is carried by the DSN's `?channel=` query parameter — declare one channel per Mattermost room, each with its own `?channel=`; the access token must belong to a bot/user allowed to post there |
+| `pushover` | a **complete** Pushover DSN (`%env(...)%`) | the user/group key and application token are carried by the DSN itself — declare one channel per Pushover user/group; messages are truncated to 1024 characters, the API limit |
 
 ## Docker
 

@@ -12,14 +12,14 @@ final class ShortMessageTruncator
 {
     private const int MAX_LENGTH = 900;
 
-    public static function truncate(string $text): string
+    public static function truncate(string $text, int $maxLength = self::MAX_LENGTH): string
     {
         $text = trim($text);
 
-        if (mb_strlen($text) <= self::MAX_LENGTH) {
+        if (mb_strlen($text) <= $maxLength) {
             return $text;
         }
 
-        return mb_substr($text, 0, self::MAX_LENGTH - 1).'…';
+        return mb_substr($text, 0, $maxLength - 1).'…';
     }
 }
