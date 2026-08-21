@@ -113,6 +113,15 @@
             "config/packages/mailer.yaml"
         ]
     },
+    "symfony/mattermost-notifier": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.1",
+            "ref": "4ef2737ce2b73ffa6941da9d75101faa6205eb43"
+        }
+    },
     "symfony/notifier": {
         "version": "8.1",
         "recipe": {

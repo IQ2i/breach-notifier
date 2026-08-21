@@ -1,12 +1,15 @@
 # Notification channels: one channel id = one single recipient.
 #
-# type      : 'email' or 'free_mobile'
+# type      : 'email', 'free_mobile' or 'mattermost'
 # from      : sender address (email only). Can be a '%env(VAR)%' placeholder.
 # recipient : single recipient, format depends on the type:
 #              - email       : an email address
 #              - free_mobile : a full Free Mobile DSN ('%env(VAR)%'), because the login, API key
 #                              and phone number are tied to the account (the Free Mobile API only
 #                              delivers to its own number)
+#              - mattermost  : a full Mattermost DSN ('%env(VAR)%'), the target channel being
+#                              carried by the DSN's '?channel=' query parameter — declare one
+#                              channel per Mattermost room, each with its own '?channel='
 #
 # A channel whose required "dsn"/"from" or recipient depends on a missing or empty environment
 # variable is silently disabled (visible with -v).
@@ -20,3 +23,7 @@ channels:
     free_mobile:
         type: free_mobile
         recipient: '%env(FREEMOBILE_DSN)%'
+
+    mattermost:
+        type: mattermost
+        recipient: '%env(MATTERMOST_DSN)%'

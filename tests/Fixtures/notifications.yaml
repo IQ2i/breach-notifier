@@ -6,6 +6,12 @@ channels:
 
     free_mobile:
         type: free_mobile
-        # scheme "null" (pas "freemobile") pour ne jamais toucher le réseau en test : voir
-        # NullTransportFactory, taggée texter.transport_factory.
+        # "null" scheme (not "freemobile") to never touch the network in tests: see
+        # NullTransportFactory, tagged texter.transport_factory.
         recipient: 'null://null?phone=0600000000'
+
+    mattermost:
+        type: mattermost
+        # "null" scheme (not "mattermost") to never touch the network in tests: see
+        # NullTransportFactory, also tagged chatter.transport_factory.
+        recipient: 'null://null?channel=securite'
