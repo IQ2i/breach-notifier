@@ -1,6 +1,6 @@
 # Notification channels: one channel id = one single recipient.
 #
-# type      : 'email', 'free_mobile' or 'mattermost'
+# type      : 'email', 'free_mobile', 'mattermost' or 'pushover'
 # from      : sender address (email only). Can be a '%env(VAR)%' placeholder.
 # recipient : single recipient, format depends on the type:
 #              - email       : an email address
@@ -10,6 +10,9 @@
 #              - mattermost  : a full Mattermost DSN ('%env(VAR)%'), the target channel being
 #                              carried by the DSN's '?channel=' query parameter — declare one
 #                              channel per Mattermost room, each with its own '?channel='
+#              - pushover    : a full Pushover DSN ('%env(VAR)%'), the user/group key and
+#                              application token being carried by the DSN itself — declare one
+#                              channel per Pushover user/group
 #
 # A channel whose required "dsn"/"from" or recipient depends on a missing or empty environment
 # variable is silently disabled (visible with -v).
@@ -27,3 +30,7 @@ channels:
     mattermost:
         type: mattermost
         recipient: '%env(MATTERMOST_DSN)%'
+
+    pushover:
+        type: pushover
+        recipient: '%env(PUSHOVER_DSN)%'

@@ -15,3 +15,9 @@ channels:
         # "null" scheme (not "mattermost") to never touch the network in tests: see
         # NullTransportFactory, also tagged chatter.transport_factory.
         recipient: 'null://null?channel=securite'
+
+    pushover:
+        type: pushover
+        # "null" scheme (not "pushover") to never touch the network in tests: see
+        # NullTransportFactory, also tagged chatter.transport_factory.
+        recipient: 'null://user:token@null'

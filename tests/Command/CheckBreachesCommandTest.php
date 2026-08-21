@@ -93,7 +93,7 @@ final class CheckBreachesCommandTest extends KernelTestCase
 
     public function testNotificationsAreSentToEveryConfiguredChannel(): void
     {
-        // tests/Fixtures/notifications.yaml (see config/services_test.yaml) declares 3 channels
+        // tests/Fixtures/notifications.yaml (see config/services_test.yaml) declares 4 channels
         // on "null://" transports: no network access, but the send genuinely "succeeds".
         $this->persistBreachItem('SFR', 'sfr-guid-notify', 'SFR targeted by a data breach');
 
@@ -104,6 +104,7 @@ final class CheckBreachesCommandTest extends KernelTestCase
         self::assertSame(1, $payload['notifications']['email']['sent']);
         self::assertSame(1, $payload['notifications']['free_mobile']['sent']);
         self::assertSame(1, $payload['notifications']['mattermost']['sent']);
+        self::assertSame(1, $payload['notifications']['pushover']['sent']);
         self::assertNotNull($payload['matches'][0]['notifiedAt']);
     }
 
@@ -130,6 +131,7 @@ final class CheckBreachesCommandTest extends KernelTestCase
         self::assertArrayHasKey('email', $payload['notifications']);
         self::assertArrayNotHasKey('free_mobile', $payload['notifications']);
         self::assertArrayNotHasKey('mattermost', $payload['notifications']);
+        self::assertArrayNotHasKey('pushover', $payload['notifications']);
     }
 
     public function testUnknownChannelFails(): void
