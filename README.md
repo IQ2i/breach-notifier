@@ -157,6 +157,14 @@ Without Docker, the same one-shot pattern applies directly:
 make test
 ```
 
+## Sponsors
+
+<p align="center">
+  <a target="_blank" href="https://www.mezcalito.fr">
+    <img alt="Mezcalito - Agence Digitale à Grenoble depuis 2006" src="https://raw.githubusercontent.com/IQ2i/breach-notifier/main/doc/static/mezcalito.svg" width="300">
+  </a>
+</p>
+
 ## License
 
 [MIT](LICENSE)
