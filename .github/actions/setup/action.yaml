@@ -1,0 +1,43 @@
+name: Setup project
+description: Checkout, install PHP and composer dependencies, prepare local config
+
+inputs:
+  php-version:
+    description: PHP version to install
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ctype, iconv, sqlite3
+        coverage: none
+        tools: composer:v2
+
+    - name: Get composer cache directory
+      id: composer-cache
+      shell: bash
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache composer dependencies
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ inputs.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ inputs.php-version }}-
+
+    - name: Install dependencies
+      shell: bash
+      run: composer install --no-interaction --no-progress --prefer-dist
+
+    - name: Set up local config
+      shell: bash
+      run: |
+        cp .env.test .env.test.local || true
+        cp feeds.dist.yaml feeds.yaml
+        cp watchlist.dist.yaml watchlist.yaml
+        cp notifications.dist.yaml notifications.yaml

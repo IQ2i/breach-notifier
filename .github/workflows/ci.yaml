@@ -8,60 +8,56 @@ on:
 permissions:
   contents: read
 
+env:
+  PHP_VERSION: '8.4'
+
 jobs:
-  tests:
-    name: Tests (PHP ${{ matrix.php-version }})
+  composer-validate:
+    name: Validate composer.json
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version: ['8.4']
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
         with:
-          php-version: ${{ matrix.php-version }}
-          extensions: ctype, iconv, sqlite3
-          coverage: none
-          tools: composer:v2
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer validate --strict
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v4
+  lint:
+    name: Lint config, twig and container
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer lint
 
-      - name: Install dependencies
-        run: composer install --no-interaction --no-progress --prefer-dist
+  cs-check:
+    name: Coding standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer cs-check
 
-      - name: Validate composer.json
-        run: composer validate --strict
+  phpstan:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer phpstan
 
-      - name: Set up test environment
-        run: |
-          cp .env.test .env.test.local || true
-          cp feeds.dist.yaml feeds.yaml
-          cp watchlist.dist.yaml watchlist.yaml
-          cp notifications.dist.yaml notifications.yaml
-
-      - name: Lint config, twig and container
-        run: composer lint
-
-      - name: Check coding standards
-        run: composer cs-check
-
-      - name: Run static analysis
-        run: composer phpstan
-
-      - name: Run test suite
-        run: composer test
+  test:
+    name: Test suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer test
