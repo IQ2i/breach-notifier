@@ -35,6 +35,8 @@ jobs:
       php-versions: '["8.5"]'
       php-extensions: intl, pdo_sqlite, zip, pcntl
       dependency-versions: locked
+      coverage: pcov
+      coverage-floor: 85
       before-script: cp feeds.dist.yaml feeds.yaml
 
   app:
