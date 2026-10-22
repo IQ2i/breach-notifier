@@ -56,7 +56,7 @@ final class FeedReader
 
     private function toFeedItem(FeedSource $source, EntryInterface $entry): FeedItem
     {
-        $link = (string) ($entry->getLink() ?? '');
+        $link = $this->toHttpUrl((string) ($entry->getLink() ?? ''));
         $guid = trim((string) ($entry->getId() ?? ''));
         if ('' === $guid) {
             $guid = $link;
@@ -90,6 +90,14 @@ final class FeedReader
             categories: $categories,
             publishedAt: $publishedAt,
         );
+    }
+
+    // The link ends up in an href of the HTML email: only http(s) is acceptable, never javascript: or data:.
+    private function toHttpUrl(string $url): string
+    {
+        $scheme = parse_url(trim($url), \PHP_URL_SCHEME);
+
+        return \is_string($scheme) && \in_array(strtolower($scheme), ['http', 'https'], true) ? trim($url) : '';
     }
 
     private function toImmutable(mixed $date): ?\DateTimeImmutable

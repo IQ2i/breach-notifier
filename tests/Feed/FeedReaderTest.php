@@ -77,4 +77,18 @@ final class FeedReaderTest extends TestCase
 
         self::assertSame($guids, array_unique($guids));
     }
+
+    public function testDropsLinksThatAreNotHttp(): void
+    {
+        $xml = '<?xml version="1.0"?><rss version="2.0"><channel><title>t</title><link>https://example.com</link><description>d</description>'
+            .'<item><title>Evil</title><guid>evil-1</guid><link>javascript:alert(1)</link><description>x</description></item>'
+            .'</channel></rss>';
+        $reader = new FeedReader(new MockHttpClient(new MockResponse($xml)));
+
+        $items = $reader->read(new FeedSource('Feed', 'https://example.com/feed.xml'));
+
+        self::assertCount(1, $items);
+        self::assertSame('', $items[0]->link);
+        self::assertSame('evil-1', $items[0]->guid);
+    }
 }
