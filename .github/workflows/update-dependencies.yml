@@ -6,9 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+  contents: read
 
 concurrency:
   group: update-dependencies
@@ -20,3 +18,7 @@ jobs:
       mode: nightly
       php-version: '8.5'
       php-extensions: intl, pdo_sqlite, zip, pcntl
+      assignees: loicsapone
+    secrets:
+      app-client-id: ${{ secrets.DEPENDENCY_APP_CLIENT_ID }}
+      app-private-key: ${{ secrets.DEPENDENCY_APP_PRIVATE_KEY }}
