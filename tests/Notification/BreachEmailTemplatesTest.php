@@ -48,4 +48,21 @@ final class BreachEmailTemplatesTest extends KernelTestCase
         self::assertStringContainsString('SFR', $short);
         self::assertStringContainsString('https://example.com/sfr', $short);
     }
+
+    public function testHtmlTemplateEscapesFeedControlledValues(): void
+    {
+        self::bootKernel();
+        /** @var Environment $twig */
+        $twig = static::getContainer()->get('twig');
+
+        $payload = '<script>alert(1)</script>';
+        $item = new BreachItem('https://example.com/feed.xml', 'guid-1', $payload, 'https://example.com/?a="b"', 'content', [$payload], null, 'hash', new \DateTimeImmutable());
+        $matches = [new BreachMatch($item, $payload, $payload, 'content', $payload, new \DateTimeImmutable())];
+
+        $html = $twig->render('email/breaches.html.twig', ['matches' => $matches]);
+
+        self::assertStringNotContainsString('<script>', $html);
+        self::assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $html);
+        self::assertStringContainsString('href="https://example.com/?a=&quot;b&quot;"', $html);
+    }
 }

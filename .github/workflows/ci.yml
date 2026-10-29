@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    uses: IQ2i/.github/.github/workflows/php-security.yml@main
+    with:
+      php-version: '8.5'
+      dependency-versions: locked
+      # A dev-only advisory must not hold back the production updates.
+      audit-args: ${{ github.head_ref == 'chore/nightly-dependencies' && '--no-dev' || '' }}
+
+  cs:
+    uses: IQ2i/.github/.github/workflows/php-cs.yml@main
+    with:
+      php-version: '8.5'
+      dependency-versions: locked
+
+  sa:
+    uses: IQ2i/.github/.github/workflows/php-stan.yml@main
+    with:
+      php-version: '8.5'
+      dependency-versions: locked
+
+  tests:
+    uses: IQ2i/.github/.github/workflows/php-tests.yml@main
+    with:
+      php-versions: '["8.5"]'
+      php-extensions: intl, pdo_sqlite, zip, pcntl
+      dependency-versions: locked
+      coverage: pcov
+      coverage-floor: 85
+      before-script: cp feeds.dist.yaml feeds.yaml
+
+  app:
+    uses: IQ2i/.github/.github/workflows/symfony-app.yml@main
+    with:
+      php-version: '8.5'
+      php-extensions: intl, pdo_sqlite, zip, pcntl
+      dependency-versions: locked
+      before-script: |
+        cp feeds.dist.yaml feeds.yaml
+        cp watchlist.dist.yaml watchlist.yaml
+        cp notifications.dist.yaml notifications.yaml
+        php bin/console lint:yaml feeds.dist.yaml watchlist.dist.yaml notifications.dist.yaml
+
+  automerge:
+    needs: [security, cs, sa, tests, app]
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: IQ2i/.github/.github/workflows/automerge.yml@main
+
+  automerge-report:
+    if: failure()
+    needs: [security, cs, sa, tests, app]
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: IQ2i/.github/.github/workflows/automerge.yml@main
+    with:
+      report-failure: true

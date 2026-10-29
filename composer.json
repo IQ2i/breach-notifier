@@ -13,7 +13,7 @@
         "doctrine/doctrine-bundle": "^3.3",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",
-        "laminas/laminas-feed": "^2.26",
+        "laminas/laminas-feed": "~2.26.3",
         "symfony/console": "8.1.*",
         "symfony/dotenv": "8.1.*",
         "symfony/flex": "^2",
@@ -100,6 +100,6 @@
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan": "^2.2",
         "phpstan/phpstan-symfony": "^2.0",
-        "phpunit/phpunit": "^13.3"
+        "phpunit/phpunit": "^13.4.5"
     }
 }

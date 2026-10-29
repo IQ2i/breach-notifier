@@ -1,0 +1,24 @@
+name: Dependencies review
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependencies-review
+
+jobs:
+  update:
+    uses: IQ2i/.github/.github/workflows/dependency-update.yml@main
+    with:
+      mode: review
+      php-version: '8.5'
+      php-extensions: intl, pdo_sqlite, zip, pcntl
+      assignees: loicsapone
+    secrets:
+      app-client-id: ${{ secrets.DEPENDENCY_APP_CLIENT_ID }}
+      app-private-key: ${{ secrets.DEPENDENCY_APP_PRIVATE_KEY }}
