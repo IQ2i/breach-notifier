@@ -1,0 +1,85 @@
+name: Dependabot automerge
+
+on:
+  workflow_call:
+    inputs:
+      report-failure:
+        description: >-
+          Comment the pull request instead of merging it. Meant for a job that runs when the CI has failed:
+          the comment notifies the assignees, who would otherwise never hear about a bot's pull request.
+        required: false
+        type: boolean
+        default: false
+      merge-groups:
+        description: 'Comma-separated Dependabot groups merged automatically.'
+        required: false
+        type: string
+        default: 'dependencies,security'
+      runs-on:
+        required: false
+        type: string
+        default: ubuntu-latest
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    name: ${{ inputs.report-failure && 'Report the failure' || 'Merge' }}
+    # Only the pull requests opened by Dependabot, and never one coming from a fork.
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.user.login == 'dependabot[bot]'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      - name: Fetch the Dependabot metadata
+        id: metadata
+        if: ${{ !inputs.report-failure }}
+        uses: dependabot/fetch-metadata@v3.1.0
+        with:
+          github-token: ${{ github.token }}
+
+      # Below 1.0, a minor version is allowed to break: those updates are never merged without a review.
+      - name: Find the unstable updates
+        id: unstable
+        if: ${{ !inputs.report-failure }}
+        env:
+          UPDATES: ${{ steps.metadata.outputs.updated-dependencies-json }}
+        run: |
+          set -euo pipefail
+          packages=$(jq -r '[.[] | select((.prevVersion | ltrimstr("v") | startswith("0.")) and .updateType != "version-update:semver-patch") | .dependencyName] | join(", ")' <<< "$UPDATES")
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+
+      - name: Merge the pull request
+        if: ${{ !inputs.report-failure && steps.unstable.outputs.packages == '' && contains(format(',{0},', inputs.merge-groups), format(',{0},', steps.metadata.outputs.dependency-group)) }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # --match-head-commit refuses to merge anything but the commit the CI has just tested.
+          gh pr merge "$PR_URL" --squash --delete-branch --match-head-commit "$HEAD_SHA"
+
+      - name: Ask for a review
+        if: ${{ !inputs.report-failure && steps.unstable.outputs.packages != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PACKAGES: ${{ steps.unstable.outputs.packages }}
+        run: |
+          set -euo pipefail
+          gh pr comment "$PR_URL" --body "Not merged automatically: $PACKAGES is still below 1.0, where a minor version may break. Please review."
+
+      - name: Comment the pull request
+        if: ${{ inputs.report-failure }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh pr comment "$PR_URL" --body "The CI failed, so this pull request was not merged: $RUN_URL"

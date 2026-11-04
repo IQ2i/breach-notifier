@@ -5,15 +5,42 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    ignore:
-      - dependency-name: '*'
-        update-types: ['version-update:semver-minor', 'version-update:semver-patch']
+      day: monday
+      time: '05:00'
+      timezone: Europe/Paris
+    versioning-strategy: increase
+    assignees:
+      - loicsapone
     commit-message:
       prefix: chore
+    # The first matching group wins: security fixes (opened right away, outside of the schedule) are never
+    # held back by a major, and only the "dependencies" group is merged automatically.
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ['*']
+      major:
+        applies-to: version-updates
+        patterns: ['*']
+        update-types: [major]
+      dependencies:
+        applies-to: version-updates
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      # Symfony minors go through extra.symfony.require and the Flex recipes, which Dependabot ignores.
+      # Raise this bound each time the project moves to a new Symfony minor.
+      - dependency-name: 'symfony/*'
+        versions: ['>= 8.2']
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    assignees:
+      - loicsapone
     commit-message:
       prefix: ci
+    groups:
+      actions:
+        patterns: ['*']
