@@ -19,8 +19,6 @@ jobs:
     with:
       php-version: '8.5'
       dependency-versions: locked
-      # A dev-only advisory must not hold back the production updates.
-      audit-args: ${{ github.head_ref == 'chore/nightly-dependencies' && '--no-dev' || '' }}
 
   cs:
     uses: IQ2i/.github/.github/workflows/php-cs.yml@main
@@ -61,7 +59,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: IQ2i/.github/.github/workflows/automerge.yml@main
+    uses: ./.github/workflows/dependabot-automerge.yml
 
   automerge-report:
     if: failure()
@@ -69,6 +67,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: IQ2i/.github/.github/workflows/automerge.yml@main
+    uses: ./.github/workflows/dependabot-automerge.yml
     with:
       report-failure: true
