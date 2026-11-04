@@ -43,18 +43,6 @@ parameters:
 			path: src/Feed/FeedReader.php
 
 		-
-			message: '#^Method App\\Kernel\:\:configureRoutes\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Kernel.php
-
-		-
-			message: '#^Method App\\Kernel\:\:getAllowedEnvs\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Kernel.php
-
-		-
 			message: '#^Call to function method_exists\(\) with ''Symfony\\\\Component\\\\Dotenv\\\\Dotenv'' and ''bootEnv'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
