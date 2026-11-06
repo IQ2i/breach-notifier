@@ -15,6 +15,8 @@ updates:
       prefix: chore
     # The first matching group wins: security fixes (opened right away, outside of the schedule) are never
     # held back by a major, and only the "dependencies" group is merged automatically.
+    # Dependabot only knows the advisories reviewed by GitHub, which come days or weeks after Symfony publishes them:
+    # security-updates.yml audits the lock files every hour to cover that delay.
     groups:
       security:
         applies-to: security-updates
