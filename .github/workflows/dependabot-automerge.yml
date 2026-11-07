@@ -27,17 +27,48 @@ permissions:
 jobs:
   automerge:
     name: ${{ inputs.report-failure && 'Report the failure' || 'Merge' }}
-    # Only the pull requests opened by Dependabot, and never one coming from a fork.
+    # Only the pull requests opened by Dependabot, and never one coming from a fork. The security updates opened by
+    # security-updates.yml have no pull_request run of their own: the CI is dispatched on their security/* branch.
     if: >-
-      github.event_name == 'pull_request'
-      && github.event.pull_request.user.login == 'dependabot[bot]'
-      && github.event.pull_request.head.repo.full_name == github.repository
+      (
+        github.event_name == 'pull_request'
+        && github.event.pull_request.user.login == 'dependabot[bot]'
+        && github.event.pull_request.head.repo.full_name == github.repository
+      ) || (
+        github.event_name == 'workflow_dispatch'
+        && startsWith(github.ref_name, 'security/')
+      )
     runs-on: ${{ inputs.runs-on }}
 
     steps:
+      - name: Find the pull request
+        id: target
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ github.ref_name }}
+          RUN_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            # The branch must belong to this repository (a fork cannot dispatch a workflow here) and still be at the tested commit.
+            PR_URL=$(gh pr list --head "$BRANCH" --state open --json url,headRefOid,isCrossRepository \
+              --jq "map(select(.headRefOid == \"$RUN_SHA\" and (.isCrossRepository | not))) | .[0].url // empty")
+            if [ -z "$PR_URL" ]; then
+              echo "::error::No open pull request at $RUN_SHA for $BRANCH."
+              exit 1
+            fi
+            HEAD_SHA=$RUN_SHA
+          fi
+          echo "url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+
       - name: Fetch the Dependabot metadata
         id: metadata
-        if: ${{ !inputs.report-failure }}
+        if: ${{ !inputs.report-failure && github.event_name == 'pull_request' }}
         uses: dependabot/fetch-metadata@v3.1.0
         with:
           github-token: ${{ github.token }}
@@ -45,7 +76,7 @@ jobs:
       # Below 1.0, a minor version is allowed to break: those updates are never merged without a review.
       - name: Find the unstable updates
         id: unstable
-        if: ${{ !inputs.report-failure }}
+        if: ${{ !inputs.report-failure && github.event_name == 'pull_request' }}
         env:
           UPDATES: ${{ steps.metadata.outputs.updated-dependencies-json }}
         run: |
@@ -54,11 +85,15 @@ jobs:
           echo "packages=$packages" >> "$GITHUB_OUTPUT"
 
       - name: Merge the pull request
-        if: ${{ !inputs.report-failure && steps.unstable.outputs.packages == '' && contains(format(',{0},', inputs.merge-groups), format(',{0},', steps.metadata.outputs.dependency-group)) }}
+        if: >-
+          ${{ !inputs.report-failure && (
+            github.event_name == 'workflow_dispatch'
+            || (steps.unstable.outputs.packages == '' && contains(format(',{0},', inputs.merge-groups), format(',{0},', steps.metadata.outputs.dependency-group)))
+          ) }}
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_URL: ${{ steps.target.outputs.url }}
+          HEAD_SHA: ${{ steps.target.outputs.sha }}
         run: |
           set -euo pipefail
           # --match-head-commit refuses to merge anything but the commit the CI has just tested.
@@ -68,7 +103,7 @@ jobs:
         if: ${{ !inputs.report-failure && steps.unstable.outputs.packages != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_URL: ${{ steps.target.outputs.url }}
           PACKAGES: ${{ steps.unstable.outputs.packages }}
         run: |
           set -euo pipefail
@@ -78,7 +113,7 @@ jobs:
         if: ${{ inputs.report-failure }}
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_URL: ${{ steps.target.outputs.url }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail

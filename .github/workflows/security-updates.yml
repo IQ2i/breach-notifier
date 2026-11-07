@@ -1,0 +1,114 @@
+name: Security updates
+
+# Dependabot only reacts to the advisories reviewed by GitHub, which land days or weeks after Symfony and Packagist
+# publish them. Auditing the lock files directly gets the fix out within the hour.
+on:
+  schedule:
+    # Off the top of the hour: GitHub delays scheduled runs at peak times.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: security-updates
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 'Setup PHP and install dependencies'
+        uses: IQ2i/.github/actions/setup-php@main
+        with:
+          php-version: '8.5'
+          extensions: intl, pdo_sqlite, zip, pcntl
+          dependency-versions: locked
+
+      - name: Update the vulnerable packages
+        id: update
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/report.md"
+          : > "$report"
+
+          # The audit exits with a non-zero code when it finds something: only the JSON tells a failure from a finding.
+          composer audit --locked --abandoned=ignore --format=json > "$RUNNER_TEMP/composer-audit.json" || true
+          jq -e 'has("advisories")' "$RUNNER_TEMP/composer-audit.json" > /dev/null
+          packages=$(jq -r '.advisories | keys[]' "$RUNNER_TEMP/composer-audit.json" | grep -E '^[a-z0-9_.-]+/[a-z0-9_.-]+$' || true)
+
+          if [ -n "$packages" ]; then
+            {
+              echo '### Composer'
+              echo
+              jq -r '.advisories[][] | "- \(.packageName): [\(.title)](\(.link))"' "$RUNNER_TEMP/composer-audit.json"
+              echo
+            } >> "$report"
+            # Without the plugins and scripts, Flex does not rewrite the recipes' files on its own.
+            # shellcheck disable=SC2086
+            composer update $packages --with-all-dependencies --minimal-changes --no-plugins --no-scripts --no-interaction --no-progress
+          fi
+
+          if ! composer audit --locked --abandoned=ignore > /dev/null; then
+            echo 'composer_unfixed=true' >> "$GITHUB_OUTPUT"
+            echo '::error::A Composer advisory is still open after the update: a manual fix is needed.'
+          fi
+
+          if git diff --quiet -- composer.lock; then
+            echo 'Nothing to update.'
+            exit 0
+          fi
+
+          branch="security/$(sha256sum composer.lock | cut -c1-12)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "report=$report" >> "$GITHUB_OUTPUT"
+
+      # The branch name is derived from the content of the lock file: the same fix is proposed only once, whether its
+      # pull request is still open, was closed or failed its CI.
+      - name: Open the pull request
+        id: pr
+        if: steps.update.outputs.branch != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.update.outputs.branch }}
+          REPORT: ${{ steps.update.outputs.report }}
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin "$BRANCH" > /dev/null; then
+            echo "$BRANCH was already proposed."
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch --create "$BRANCH"
+          git add composer.lock
+          git commit --message 'fix: apply security updates'
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --base "${GITHUB_REF_NAME}" \
+            --head "$BRANCH" \
+            --title 'fix: apply security updates' \
+            --body-file "$REPORT" \
+            --assignee loicsapone
+          echo "created=true" >> "$GITHUB_OUTPUT"
+
+      # A pull request opened with the GITHUB_TOKEN does not start the CI by itself (its run waits for an approval),
+      # but a workflow_dispatch always does. The automerge job of that run merges the pull request once the CI passes.
+      - name: Run the CI
+        if: steps.pr.outputs.created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.update.outputs.branch }}
+        run: gh workflow run ci.yml --ref "$BRANCH"
+
+      - name: Fail when an advisory cannot be fixed automatically
+        if: always() && steps.update.outputs.composer_unfixed == 'true'
+        run: exit 1
