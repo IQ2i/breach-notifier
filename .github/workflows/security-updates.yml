@@ -38,24 +38,35 @@ jobs:
           report="$RUNNER_TEMP/report.md"
           : > "$report"
 
-          # The audit exits with a non-zero code when it finds something: only the JSON tells a failure from a finding.
-          composer audit --locked --abandoned=ignore --format=json > "$RUNNER_TEMP/composer-audit.json" || true
-          jq -e 'has("advisories")' "$RUNNER_TEMP/composer-audit.json" > /dev/null
-          packages=$(jq -r '.advisories | keys[]' "$RUNNER_TEMP/composer-audit.json" | grep -E '^[a-z0-9_.-]+/[a-z0-9_.-]+$' || true)
+          tmp="$RUNNER_TEMP"
 
+          # The audit exits with a non-zero code when it finds something: only the JSON tells a failure from a finding.
+          audit_composer() {
+            composer audit --locked --abandoned=ignore --format=json > "$1" || true
+            jq -e 'has("advisories")' "$1" > /dev/null
+          }
+
+          audit_composer "$tmp/composer-before.json"
+          packages=$(jq -r '.advisories | keys[]' "$tmp/composer-before.json" | grep -E '^[a-z0-9_.-]+/[a-z0-9_.-]+$' || true)
           if [ -n "$packages" ]; then
-            {
-              echo '### Composer'
-              echo
-              jq -r '.advisories[][] | "- \(.packageName): [\(.title)](\(.link))"' "$RUNNER_TEMP/composer-audit.json"
-              echo
-            } >> "$report"
             # Without the plugins and scripts, Flex does not rewrite the recipes' files on its own.
             # shellcheck disable=SC2086
             composer update $packages --with-all-dependencies --minimal-changes --no-plugins --no-scripts --no-interaction --no-progress
           fi
+          audit_composer "$tmp/composer-after.json"
 
-          if ! composer audit --locked --abandoned=ignore > /dev/null; then
+          # The pull request only reports the advisories that disappeared: the lock file is otherwise left untouched.
+          composer_fixed=$(jq -r --slurpfile after "$tmp/composer-after.json" \
+            '($after[0].advisories | [.[][].advisoryId]) as $open
+             | .advisories[][] | select(.advisoryId as $id | $open | index($id) | not)
+             | "- \(.packageName): [\(.title)](\(.link))"' "$tmp/composer-before.json")
+          if [ -n "$composer_fixed" ]; then
+            printf '### Composer\n\n%s\n\n' "$composer_fixed" >> "$report"
+          else
+            git checkout -- composer.lock
+          fi
+
+          if [ "$(jq '[.advisories[][]] | length' "$tmp/composer-after.json")" -gt 0 ]; then
             echo 'composer_unfixed=true' >> "$GITHUB_OUTPUT"
             echo '::error::A Composer advisory is still open after the update: a manual fix is needed.'
           fi
